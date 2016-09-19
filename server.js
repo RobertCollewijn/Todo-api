@@ -8,26 +8,26 @@ var _ = require("underscore");
 
 var app = express();
 const PORT = process.env.PORT || 3000;
-var todos = [];
+var todos = [{
 
-var todoNextId = 1;
-/*
- [{
-
- id: 1,
- description: 'Meet Petra for lunch',
- completed: false,
- }, {
- id: 2,
- description: 'Go to market',
- completed: false,
- }, {
- id: 3,
- description: 'Feed the cat',
- completed: true,
- }
- ];
- */
+    id: 1,
+    description: 'Meet Petra for lunch',
+    completed: false,
+}, {
+    id: 2,
+    description: 'Go to market',
+    completed: false,
+}, {
+    id: 3,
+    description: 'Feed the cat',
+    completed: true,
+}, {
+    id: 4,
+    description: 'Work on saterday',
+    completed: true,
+}
+];
+var todoNextId = 5;
 
 app.use(bodyParser.json());
 
@@ -36,24 +36,31 @@ app.get("/", function (req, res) {
     res.send("Todo API root")
 })
 
-// get todos?completed
+// get todos?completed&q= in the description
 app.get("/todos", function (req, res) {
         var queryParams = req.query;
         var filterdTodos = todos;
-    var queryCompleted = queryParams.completed;
-    //console.log("queryCompleted: " + typeof queryCompleted);
+        var queryCompleted = queryParams.completed;
+        //console.log("queryCompleted: " + typeof queryCompleted);
 
-        if (queryParams.hasOwnProperty('completed')){
+        if (queryParams.hasOwnProperty('completed')) {
             queryCompleted = queryParams.completed;
-            if(queryCompleted==='true'){
-                filterdTodos = _.where(filterdTodos,{completed:true})
-            }else if(queryCompleted==='false'){
-                filterdTodos = _.where(filterdTodos,{completed:false})
+            if (queryCompleted === 'true') {
+                filterdTodos = _.where(filterdTodos, {completed: true})
+            } else if (queryCompleted === 'false') {
+                filterdTodos = _.where(filterdTodos, {completed: false})
             }
 
         }
+    if (queryParams.hasOwnProperty('q') && queryParams.q.length>0) {
+        var searchInDescription = queryParams.q.toLocaleLowerCase();
+        console.log(searchInDescription)
+        filterdTodos = _.filter(filterdTodos,function(todo){
+            return todo.description.toLocaleLowerCase().indexOf(searchInDescription)>-1;
+        });
+    }
 
-
+//filter
 
         res.json(filterdTodos)
     }
