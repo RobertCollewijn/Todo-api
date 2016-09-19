@@ -102,9 +102,45 @@ app.delete("/todos/:id", function (req, res) {
        todos = _.without(todos,matchedToDo)
         res.json(todos);
     }else{
-        res.status(400).json("Todo: " + todoId + " not found");
+        res.status(404).send(); //json({"Todo: " + todoId + " not found"});
        // res.sendStatus(404);//.json("Todo " + todoID +" not found"); ID moet zijn Id
     }
+
+})
+
+app.put("/todos/:id",function (req,res) {
+    var todoId = parseInt(req.params.id);
+    var matchedToDo = _.findWhere(todos,{id: todoId});
+    var body= _.pick(req.body,'description', 'completed');
+    var validAttributes = {};
+
+    if (!matchedToDo) {
+       return res.status(404).send(); //({"Todo: " + todoId + " not found"});
+    }
+
+
+    if (body.hasOwnProperty('completed') && _.isBoolean(body.completed) ){
+        validAttributes.completed = body.completed;
+    }
+    else if (body.hasOwnProperty('completed') ){
+        return res.status(400).send();//.json({"error":"errormessage","var":"value"});
+    }else{
+
+    }
+
+
+    if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length>0 ){
+        validAttributes.description = body.description;
+    }
+    else if (body.hasOwnProperty('description') ){
+        return res.status(400).send();
+    }else{
+
+    }
+
+    _.extend(matchedToDo, validAttributes);
+
+res.send(matchedToDo);
 
 })
 
