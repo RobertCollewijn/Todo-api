@@ -2,22 +2,33 @@
  * Created by Robert on 18-9-2016.
  */
 var express = require('express');
+
+var bodyParser = require('body-parser');
+
 var app = express();
 const PORT = process.env.PORT || 3000;
-var todos = [{
-    id: 1,
-    description: 'Meet mom for lunch',
-    completed: false,
-}, {
-    id: 2,
-    description: 'Go to market',
-    completed: false,
-}, {
-    id: 3,
-    description: 'Feed the cat',
-    completed: true,
-}
-];
+var todos = [];
+
+var todoNextId = 1;
+/*
+ [{
+
+ id: 1,
+ description: 'Meet Petra for lunch',
+ completed: false,
+ }, {
+ id: 2,
+ description: 'Go to market',
+ completed: false,
+ }, {
+ id: 3,
+ description: 'Feed the cat',
+ completed: true,
+ }
+ ];
+ */
+
+app.use(bodyParser.json());
 
 
 app.get("/", function (req, res) {
@@ -34,10 +45,10 @@ app.get("/todos", function (req, res) {
 app.get("/todos/:id", function (req, res) {
     var todoId = parseInt(req.params.id);
     var todoFound = false;
-  //  var matchedToDo;
+    //  var matchedToDo;
     console.log("Asking for todo with id of " + todoId);
     for (i = 0; i < todos.length; i++) {
-        console.log("todosID[" + i+"].id = " + todos[i].id);
+        console.log("todosID[" + i + "].id = " + todos[i].id);
         // res.send("loop " + i);
         // res.json(todos[i]);
         if (todos[i].id === todoId) {
@@ -47,11 +58,31 @@ app.get("/todos/:id", function (req, res) {
         }
     }
 
-   if (!todoFound) {
-  //  if(!matchedToDo){
+    if (!todoFound) {
+        //  if(!matchedToDo){
         console.log("not found")
         res.sendStatus(404); //.send("Todo " + todoID +" not found");
     }
+
+})
+
+app.post('/todos', function (req, res) {
+    var body= req.body;
+    body.id = todoNextId++
+    /*
+
+     console.log('description: ' + body.description);
+    var todo = {
+        id: todoNextId,
+        description: body.description,
+        completed: body.completed,
+    }
+   todoNextId++
+     */
+    todos.push(body);
+    res.json(todos);
+
+
 
 })
 
