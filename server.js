@@ -91,7 +91,20 @@ app.post('/todos', function (req, res) {
     todos.push(body);
     res.json(body);
 
+})
 
+//DELETE
+app.delete("/todos/:id", function (req, res) {
+    var todoId = parseInt(req.params.id);
+    var matchedToDo = _.findWhere(todos,{id: todoId});
+
+    if (matchedToDo) {
+       todos = _.without(todos,matchedToDo)
+        res.json(todos);
+    }else{
+        res.status(400).json("Todo: " + todoId + " not found");
+       // res.sendStatus(404);//.json("Todo " + todoID +" not found"); ID moet zijn Id
+    }
 
 })
 
