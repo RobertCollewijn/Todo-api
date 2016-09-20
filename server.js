@@ -71,7 +71,21 @@ app.get("/todos", function (req, res) {
 // get specific id  todos/:id
 app.get("/todos/:id", function (req, res) {
     var todoId = parseInt(req.params.id);
-    var matchedToDo = _.findWhere(todos, {id: todoId});
+    //var matchedToDo = _.findWhere(todos, {id: todoId});
+
+    db.todo.findById(todoId).then(function (todo) {
+        if (!!todo) {                        //dan weet je zeker dat het een boolean is
+
+            res.json(todo);
+
+        } else {
+            res.status(404).json({"errorMessage":"no todo found"});
+
+        }
+    }).catch(function (e) {
+        res.status(500).json(e)
+    })
+
     /*
 
      var todoFound = false;
@@ -89,11 +103,15 @@ app.get("/todos/:id", function (req, res) {
      }
 
      */
+    /*
+
     if (matchedToDo) {
         res.json(matchedToDo);
     } else {
         res.sendStatus(404); //.send("Todo " + todoID +" not found");
     }
+
+     */
 
 })
 
