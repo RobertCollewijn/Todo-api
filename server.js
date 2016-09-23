@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var _ = require("underscore");
 var db = require('./db');
 var bcrypt =  require('bcryptjs');
+var middleware = require("./middleware")(db);
 
 var app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,7 +21,7 @@ app.get("/", function (req, res) {
 });
 
 // get todos?completed&q= in the description
-app.get("/todos", function (req, res) {
+app.get("/todos", middleware.requireAuthentication, function (req, res) {
     var queryParams = req.query;
     var where = {};
     if (queryParams.hasOwnProperty('completed')) {
@@ -47,7 +48,7 @@ app.get("/todos", function (req, res) {
 });
 
 // get specific id  todos/:id
-app.get("/todos/:id", function (req, res) {
+app.get("/todos/:id", middleware.requireAuthentication, function (req, res) {
     var todoId = parseInt(req.params.id);
     db.todo.findById(todoId).then(function (todo) {
         if (!!todo) {                        //dan weet je zeker dat het een boolean is
@@ -65,7 +66,7 @@ app.get("/todos/:id", function (req, res) {
 });
 
 //CREATE
-app.post('/todos', function (req, res) {
+app.post('/todos', middleware.requireAuthentication, function (req, res) {
     var body = _.pick(req.body, 'description', 'completed');
     db.sequelize.sync().then(function () {
         console.log("Everything is synced");
@@ -86,7 +87,7 @@ app.post('/todos', function (req, res) {
 });
 
 //DELETE
-app.delete("/todos/:id", function (req, res) {
+app.delete("/todos/:id", middleware.requireAuthentication, function (req, res) {
     var todoId = parseInt(req.params.id);
 
     db.todo.destroy({
@@ -106,7 +107,7 @@ app.delete("/todos/:id", function (req, res) {
 
 });
 
-app.put("/todos/:id", function (req, res) {
+app.put("/todos/:id", middleware.requireAuthentication, function (req, res) {
     var todoId = parseInt(req.params.id);
     var body = _.pick(req.body, 'description', 'completed');
     var attributes = {};
